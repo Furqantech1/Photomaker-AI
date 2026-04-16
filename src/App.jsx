@@ -139,6 +139,30 @@ const loadImageFromUrl = (url) =>
     img.src = url
   })
 
+const normalizeImageForBackgroundRemoval = async (file) => {
+  const type = (file.type || '').toLowerCase()
+  const nativelySupported = [
+    'image/png',
+    'image/jpeg',
+    'image/jpg',
+    'image/webp',
+  ]
+
+  if (nativelySupported.includes(type)) return file
+
+  const bitmap = await createImageBitmap(file)
+  const canvas = document.createElement('canvas')
+  canvas.width = bitmap.width
+  canvas.height = bitmap.height
+
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(bitmap, 0, 0)
+
+  const pngBlob = await blobFromCanvas(canvas)
+  const baseName = file.name.replace(/\.[^/.]+$/, '') || 'photo'
+  return new File([pngBlob], `${baseName}.png`, { type: 'image/png' })
+}
+
 const renderPassportPhoto = (sourceImage, style, countrySpec) => {
   const passportWidth = mmToPxAt300(countrySpec.widthMm)
   const passportHeight = mmToPxAt300(countrySpec.heightMm)
@@ -444,10 +468,18 @@ function App() {
     }
 
     setIsWorking(true)
-    setStatus('Removing background with AI...')
+    setStatus('Preparing image for AI processing...')
 
     try {
-      const removed = await removeBackground(sourceFile)
+      let normalizedSource = sourceFile
+      try {
+        normalizedSource = await normalizeImageForBackgroundRemoval(sourceFile)
+      } catch {
+        // If normalization fails, still attempt original file.
+      }
+
+      setStatus('Removing background with AI...')
+      const removed = await removeBackground(normalizedSource)
       setSubjectBlob(removed)
       setStatus('Applying passport styling and generating 4x6 template...')
       await applyStyleAndBuildSheet(removed, style, activeCountrySpec)
@@ -456,7 +488,11 @@ function App() {
       localStorage.setItem(GENERATION_USED_KEY, String(nextUsed))
       setStatus('Done. Your country-formatted 4x6 sheet is ready to download.')
     } catch (error) {
-      setStatus(`Processing failed: ${error.message}`)
+      const message =
+        error?.message ||
+        'Image processing failed. Try JPG/PNG/WebP and run again.'
+      setStatus(`Processing failed: ${message}`)
+      pushToast('Processing failed. Try JPG/PNG/WebP image format.')
     } finally {
       setIsWorking(false)
     }
