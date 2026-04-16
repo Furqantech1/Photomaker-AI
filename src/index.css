@@ -1,0 +1,44 @@
+:root {
+  --surface: #ffffff;
+  --stroke: #cfd8ea;
+  --stroke-soft: rgba(70, 103, 170, 0.18);
+  --ink-700: #0c1c45;
+  --ink-600: #445070;
+  --ink-500: #5b6680;
+  --brand-700: #1f469c;
+  --brand-500: #3265cb;
+  --aqua-500: #16bfc4;
+
+  font-family: 'Avenir Next', Avenir, 'Trebuchet MS', 'Segoe UI Variable', sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink-700);
+  background:
+    radial-gradient(circle at 10% 12%, rgba(149, 196, 255, 0.63), transparent 33%),
+    radial-gradient(circle at 83% 14%, rgba(114, 226, 224, 0.28), transparent 36%),
+    radial-gradient(circle at 74% 82%, rgba(124, 164, 255, 0.24), transparent 33%),
+    linear-gradient(155deg, #e6efff, #f5f9ff 38%, #eef5ff 62%, #e8f1ff);
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1,
+h2 {
+  font-family: 'Avenir Next Condensed', 'Franklin Gothic Medium', 'Arial Narrow', sans-serif;
+}
